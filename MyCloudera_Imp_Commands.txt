@@ -1,0 +1,131 @@
+Checking SQL access on hadoop cluster - use below command
+
+mysql -u retail_dba -p 
+when prompted give below password
+cloudera
+
+once logged in, you can run various sql commands checking for database details. Database has ~6 tables as shown below,
+
+mysql> show tables;
++---------------------+
+| Tables_in_retail_db |
++---------------------+
+| categories          |
+| customers           |
+| departments         |
+| order_items         |
+| orders              |
+| products            |
++---------------------+
+
+
+mysql -u root -p 
+when prompted give below password
+cloudera
+
+once logged in, you can run various sql commands checking for database details. Database has ~6 tables as shown below,
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| cm                 |
+| firehose           |
+| hue                |
+| metastore          |
+| mysql              |
+| nav                |
+| navms              |
+| oozie              |
+| retail_db          |
+| rman               |
+| sentry             |
++--------------------+
+
+
+Next step is to test libraries such as sqoop/hive/spark/hdfs are available in cloudera or not using below; in order 
+to test all of these simply type commands with names sqoop/hive/spark/hdfs and press enter, this will take you to the respective libraries.
+
+hostname ip: 192.168.19.129
+
+Sqoop:-
+
+sqoop list-databases 
+  --connect "jdbc:mysql://quickstart.cloudera:3306" 
+  --username retail_dba 
+  --password cloudera
+
+sqoop list-tables 
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" 
+  --username retail_dba 
+  --password cloudera
+
+sqoop eval 
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" 
+  --username retail_dba 
+  --password cloudera 
+--query "select count(1) from order_items"
+
+command to check namenode aand datanode
+
+ps -fu hdfs
+
+command to check resource manager and node manager
+
+ps -fu yarn
+
+
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --as-textfile \
+  --target-dir=/user/cloudera/departments
+
+sqoop import \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --table departments \
+  --as-sequencefile \
+  --target-dir=/user/cloudera/departments
+
+
+-- A file with extension avsc will be created under the directory from which sqoop import is executed
+-- Copy avsc file to HDFS location
+-- Create hive table with LOCATION to /user/cloudera/departments and TBLPROPERTIES pointing to avsc file
+hadoop fs -put sqoop_import_departments.avsc /user/cloudera
+
+CREATE EXTERNAL TABLE departments
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'
+STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
+LOCATION 'hdfs:///user/cloudera/dptments'
+TBLPROPERTIES ('avro.schema.url'='hdfs://quickstart.cloudera/user/cloudera/sqoop_import_departments.avsc');
+
+
+--input-fields-terminated-by '|' \
+--input-lines-terminated-by '\n' \
+
+
+--Merge
+sqoop merge --merge-key department_id \
+  --new-data /user/cloudera/sqoop_merge/departments_delta \
+  --onto /user/cloudera/sqoop_merge/departments \
+  --target-dir /user/cloudera/sqoop_merge/departments_stage \
+  --class-name departments \
+  --jar-file <get_it_from_last_import>
+
+
+hadoop fs -cat /user/cloudera/sqoop_merge/departments_stage/part*
+
+--Delete old directory
+hadoop fs -rm -R /user/cloudera/sqoop_merge/departments
+
+--Move/rename stage directory to original directory
+hadoop fs -mv /user/cloudera/sqoop_merge/departments_stage /user/cloudera/sqoop_merge/departments 
+
+--Validate that original directory have merged data
+hadoop fs -cat /user/cloudera/sqoop_merge/departments/part*
