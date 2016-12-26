@@ -1,0 +1,17 @@
+- sample query to get number of orders by order_status for a given date
+
+select order_status,count(*) from orders where order_date = '2013-12-14 00:00:00.0' 
+group by order_status order by order_status
+
+- sample query to get number of orders for all dates before 2013-12-14 00:00:00.0 
+select order_date,count(*) from orders where order_date <= '2013-12-14 00:00:00.0' group by order_date order by order_date
+
+- sample query to get number of all pending orders for all dates in month of december 2013 
+select order_date,count(*) from orders where 
+order_date like '2013-12%' and order_status like 'PENDING%' 
+group by order_date order by order_date
+
+select order_date,count(*) from orders where 
+order_date between '2013-12-01 00:00:00.0' and '2013-12-31 00:00:00.0' and (order_status like 'PENDING%' or order_status = 'ON HOLD'
+group by order_date order by order_date
+
