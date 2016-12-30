@@ -1,3 +1,5 @@
+
+
 Checking SQL access on hadoop cluster - use below command
 
 mysql -u retail_dba -p 
