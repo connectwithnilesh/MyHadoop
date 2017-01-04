@@ -6,13 +6,28 @@ select * from orders into outfile '/tmp/orders.psv' fields terminated by '|' lin
 hive
 use retail_stage;
 
+#####
+CREATE TABLE mytable (
+id int,
+Fname string,
+Lname string,
+Address int,
+Account string
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '|'
+STORED AS TEXTFILE;
+
+
+
+######
+
 CREATE TABLE orders_stage (
 order_id int,
 order_date string,
 order_customer_id int,
 order_status string
 )
-ROW FORMAT DELIMITED FIELDS TERMINATED BY '|'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
 STORED AS TEXTFILE;
 
 load data local inpath '/tmp/orders.psv' overwrite into table orders_stage;
