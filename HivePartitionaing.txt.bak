@@ -70,6 +70,3 @@ select o.*, substr(order_date, 6, 2) order_month from orders o where order_date 
 
 insert into table orders_partitioned_dynamic_strict partition (order_year='2013', order_month)
 select o.*, substr(order_date, 6, 2) order_month from orders o where order_date like '2013%';
-
-Partitions are like indexes in hive tables, it reduces i/o or amount of data scanned while running queries on tables, we should be using partion columns while executing select queries
-
