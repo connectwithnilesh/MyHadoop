@@ -31,7 +31,7 @@ mysql -u root -p
 when prompted give below password
 cloudera
 
-once logged in using ërootí, you can run various sql commands checking for database details. 
+once logged in using ‚Äòroot‚Äô, you can run various sql commands checking for database details. 
 
 mysql> show databases;
 +--------------------+
@@ -91,7 +91,7 @@ command to check resource manager and node manager
 
 ps -fu yarn
 
-to access more commands, you can access github account named as ëdgadirajuí
+to access more commands, you can access github account named as ‚Äòdgadiraju‚Äô
 ###
 SQOOP
 
@@ -130,7 +130,7 @@ products
 [cloudera@quickstart ~]$ 
 [cloudera@quickstart ~]$ 
 
-Run SQL query using ìevalî command:
+Run SQL query using ‚Äúeval‚Äù command:
 
 [cloudera@quickstart ~]$ sqoop eval --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" --username retail_dba --password cloudera --query "select * from categories"
 
@@ -163,7 +163,7 @@ Run SQL query using ìevalî command:
 
 Sqoop import:
 
-Sqoop help ñ command to list out all different arguments that can be used with Sqoop
+Sqoop help ‚Äì command to list out all different arguments that can be used with Sqoop
 
 sqoop import-all-tables \
   -m 1 \
@@ -199,7 +199,15 @@ sqoop import-all-tables \
   --as-avrodatafile \
   --warehouse-dir=/user/hive/warehouse/retail_stage.db
 
-
+######
+sqoop import-all-tables \
+  -m 6 \
+  --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+  --username=retail_dba \
+  --password=cloudera \
+  --as-textdatafile \
+  --warehouse-dir=/user/hive/warehouse/retail_stage.db
+######
 
 
 
